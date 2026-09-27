@@ -6,9 +6,10 @@ Per Section 9 of Hackathon specifications:
 - Accounts for remaining vehicle range / SoC
 - Evaluates service center bay capacity
 """
-import math
 import heapq
-from typing import List, Dict, Any, Optional
+import math
+from typing import Any
+
 
 def haversine_distance_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     """Calculates great-circle distance between two GPS coordinates on WGS84 sphere."""
@@ -26,7 +27,7 @@ class ServiceCenterRouter:
     Priority-queue Dijkstra router for allocating the optimal service depot
     based on distance, vehicle powertrain capability, and bay congestion.
     """
-    def __init__(self, service_centers: List[Dict[str, Any]]):
+    def __init__(self, service_centers: list[dict[str, Any]]):
         self.service_centers = service_centers
 
     def find_optimal_service_center(
@@ -35,7 +36,7 @@ class ServiceCenterRouter:
         vehicle_lon: float,
         is_ev: bool = False,
         remaining_range_km: float = 100.0
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """
         Computes the best destination using a min-heap cost evaluation.
         Cost Function: Cost = Distance_km + (Congestion_Penalty * Active_Bays)

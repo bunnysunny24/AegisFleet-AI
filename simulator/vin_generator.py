@@ -6,7 +6,6 @@ Per Section 9 of Hackathon guidelines:
 - Modulo 11 check digit verification at position 9
 """
 import random
-import string
 
 # Characters allowed in VINs (excludes I, O, Q)
 VIN_CHARS = "0123456789ABCDEFGHJKLMNPRSTUVWXYZ"
@@ -48,7 +47,7 @@ def calculate_check_digit(vin_17_with_placeholder: str) -> str:
         return 'X'
     return str(remainder)
 
-def generate_valid_vin(wmi_override: str = None) -> str:
+def generate_valid_vin(wmi_override: str | None = None) -> str:
     """Generates a strictly valid 17-character VIN with valid check digit."""
     wmi = wmi_override or random.choice(WMIS)[0]
     # Positions 4-8: Vehicle Descriptor Section (VDS)
@@ -60,7 +59,7 @@ def generate_valid_vin(wmi_override: str = None) -> str:
     plant = random.choice(VIN_CHARS)
     # Positions 12-17: Sequential production number
     seq = "".join(random.choices("0123456789", k=6))
-    
+
     partial = f"{wmi}{vds}_{year_char}{plant}{seq}"
     check_digit = calculate_check_digit(partial)
     return f"{wmi}{vds}{check_digit}{year_char}{plant}{seq}"

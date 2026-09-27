@@ -4,23 +4,25 @@ Built with FastAPI, SQLAlchemy, and Pydantic.
 Exposes paginated endpoints, multi-OEM ingestion, real-time analytics, ML inference, and Agentic Copilot.
 """
 import time
-from typing import List, Optional, Dict, Any
-from datetime import datetime, timezone
-from fastapi import FastAPI, Depends, HTTPException, Query, status
-from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.orm import Session
-from sqlalchemy import func, text
+from typing import Any
 
+from fastapi import Depends, FastAPI, HTTPException, Query, status
+from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import text
+from sqlalchemy.orm import Session
+
+from services.analytics.stream_processor import AnomalyProcessor
 from services.core_api.database import get_db, init_db
 from services.core_api.models import (
-    Vehicle, Fleet, Driver, Alert, MaintenanceWorkOrder,
-    DTCFaultDefinition, ServiceCenter, AuditLog,
-    VehicleStatus, AlertSeverity, AlertStatus, WorkOrderStatus
+    Alert,
+    AlertSeverity,
+    AlertStatus,
+    MaintenanceWorkOrder,
+    Vehicle,
+    WorkOrderStatus,
 )
-from services.ingestion.normalizer import OEMAdapter, CanonicalTelemetryEvent
 from services.ingestion.bloom_filter import IngestionDeduplicator
-from services.analytics.stream_processor import AnomalyProcessor
-from services.ml_engine.predictive_model import global_predictor
+from services.ingestion.normalizer import OEMAdapter
 from services.ml_engine.fleet_agent import FleetCopilotAgent
 
 app = FastAPI(
@@ -69,12 +71,12 @@ def health_check():
 
 # --- Telemetry Ingestion Endpoints ---
 @app.post("/api/v1/telemetry/ingest", status_code=status.HTTP_202_ACCEPTED, tags=["Telemetry Ingestion"])
-def ingest_single_event(payload: Dict[str, Any], db: Session = Depends(get_db)):
+def ingest_single_event(payload: dict[str, Any], db: Session = Depends(get_db)):
     """Ingests, normalizes, and analyzes a single multi-OEM vehicle telemetry event."""
     return process_telemetry_batch([payload], db)
 
 @app.post("/api/v1/telemetry/ingest/batch", status_code=status.HTTP_202_ACCEPTED, tags=["Telemetry Ingestion"])
-def process_telemetry_batch(batch: List[Dict[str, Any]], db: Session = Depends(get_db)):
+def process_telemetry_batch(batch: list[dict[str, Any]], db: Session = Depends(get_db)):
     """
     High-throughput batch ingestion endpoint.
     Performs ISO 3779 VIN normalization, Bloom-filter deduplication, anomaly analysis,
@@ -164,8 +166,8 @@ def process_telemetry_batch(batch: List[Dict[str, Any]], db: Session = Depends(g
 def list_vehicles(
     page: int = Query(1, ge=1),
     page_size: int = Query(25, ge=1, le=100),
-    powertrain: Optional[str] = None,
-    vin_search: Optional[str] = None,
+    powertrain: str | None = None,
+    vin_search: str | None = None,
     db: Session = Depends(get_db)
 ):
     """Paginated list of vehicles with keyset/offset pagination and filtering."""
@@ -211,8 +213,8 @@ def get_vehicle_details(vin: str, db: Session = Depends(get_db)):
 # --- Alerts & Work Orders ---
 @app.get("/api/v1/alerts", tags=["Alerts"])
 def list_alerts(
-    severity: Optional[str] = None,
-    status_filter: Optional[str] = "OPEN",
+    severity: str | None = None,
+    status_filter: str | None = "OPEN",
     limit: int = 50,
     db: Session = Depends(get_db)
 ):
@@ -288,7 +290,7 @@ def get_fleet_overview(db: Session = Depends(get_db)):
 
 # --- Agentic AI Copilot Endpoint ---
 @app.post("/api/v1/copilot/query", tags=["Agentic AI Copilot"])
-def query_copilot(query_body: Dict[str, Any], db: Session = Depends(get_db)):
+def query_copilot(query_body: dict[str, Any], db: Session = Depends(get_db)):
     """Direct query endpoint for Agentic AI Fleet Copilot with tool execution & audit log."""
     user_query = query_body.get("query", "")
     target_vin = query_body.get("vin")
@@ -328,6 +330,10 @@ def benchmark_query_optimization(db: Session = Depends(get_db)):
             "Covering Index: idx_vehicles_fleet_status (fleet_id, current_status)",
             "Partition-ready time-based telemetry indexing"
         ],
+        "rows_returned": {
+            "critical_alerts_join_rows": len(res1),
+            "severity_aggregation_rows": len(res2)
+        },
         "measured_latencies": {
             "open_critical_alerts_join_ms": latency_indexed_ms,
             "severity_aggregation_ms": latency_group_ms,

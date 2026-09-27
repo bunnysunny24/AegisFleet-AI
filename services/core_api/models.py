@@ -4,11 +4,21 @@ Normalized schema in Third Normal Form (3NF) with zero redundancy and strict for
 """
 from datetime import datetime
 from enum import Enum
-from typing import Optional, List
+
 from sqlalchemy import (
-    Column, String, Integer, Float, Boolean, DateTime, ForeignKey, 
-    Text, Enum as SQLEnum, Index, CheckConstraint, JSON
+    JSON,
+    Boolean,
+    CheckConstraint,
+    Column,
+    DateTime,
+    Float,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+    Text,
 )
+from sqlalchemy import Enum as SQLEnum
 from sqlalchemy.orm import declarative_base, relationship
 
 Base = declarative_base()

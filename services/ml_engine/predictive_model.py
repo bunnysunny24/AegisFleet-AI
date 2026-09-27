@@ -3,11 +3,13 @@ AegisFleet Predictive Maintenance Machine Learning Engine.
 Predicts 7-Day Unplanned Breakdown Probability and Remaining Useful Life (RUL).
 Includes feature engineering, baseline heuristic comparison, and evaluation metrics (ROC-AUC, F1, Recall).
 """
+from typing import Any
+
 import numpy as np
-from typing import Dict, Any, List, Tuple
 from sklearn.ensemble import GradientBoostingClassifier
-from sklearn.metrics import roc_auc_score, f1_score, precision_score, recall_score
+from sklearn.metrics import f1_score, precision_score, recall_score, roc_auc_score
 from sklearn.model_selection import train_test_split
+
 
 class FailureRiskPredictor:
     """
@@ -33,7 +35,7 @@ class FailureRiskPredictor:
             "harsh_braking_events_per_100km"
         ]
 
-    def _generate_synthetic_training_data(self, samples: int = 25000) -> Tuple[np.ndarray, np.ndarray]:
+    def _generate_synthetic_training_data(self, samples: int = 25000) -> tuple[np.ndarray, np.ndarray]:
         """
         Generates grounded physics telemetry samples for training.
         Simulates mechanical wear patterns (elevated thermal variance, drop in oil pressure, high mileage).
@@ -67,7 +69,7 @@ class FailureRiskPredictor:
 
         return X, y
 
-    def train_and_evaluate(self) -> Dict[str, Any]:
+    def train_and_evaluate(self) -> dict[str, Any]:
         """Trains model and benchmarks against simple rule-based baseline."""
         X, y = self._generate_synthetic_training_data(samples=20000)
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
@@ -97,12 +99,12 @@ class FailureRiskPredictor:
             },
             "feature_importance": {
                 name: round(float(imp), 4)
-                for name, imp in zip(self.feature_names, self.model.feature_importances_)
+                for name, imp in zip(self.feature_names, self.model.feature_importances_, strict=True)
             }
         }
         return metrics
 
-    def predict_vehicle_risk(self, feature_vector: Dict[str, float]) -> Dict[str, Any]:
+    def predict_vehicle_risk(self, feature_vector: dict[str, float]) -> dict[str, Any]:
         """Infers 7-day failure risk score and estimated remaining useful life (RUL)."""
         if not self.is_trained:
             self.train_and_evaluate()

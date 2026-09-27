@@ -5,19 +5,21 @@ threshold boundary checks, and automated maintenance work-order generation.
 """
 import uuid
 from datetime import datetime, timezone
-from typing import Dict, Any, List, Optional, Tuple
-from services.ingestion.normalizer import CanonicalTelemetryEvent
+from typing import Any
+
 from services.analytics.service_router import ServiceCenterRouter
 from services.core_api.models import AlertSeverity, AlertStatus, WorkOrderStatus
+from services.ingestion.normalizer import CanonicalTelemetryEvent
+
 
 class AnomalyProcessor:
-    def __init__(self, service_centers: List[Dict[str, Any]] = None):
+    def __init__(self, service_centers: list[dict[str, Any]] | None = None):
         self.router = ServiceCenterRouter(service_centers or [])
         # In-memory sliding window history: vin -> list of last N events
-        self.sliding_windows: Dict[str, List[CanonicalTelemetryEvent]] = {}
+        self.sliding_windows: dict[str, list[CanonicalTelemetryEvent]] = {}
         self.max_window_size = 10
 
-    def process_event(self, event: CanonicalTelemetryEvent) -> List[Dict[str, Any]]:
+    def process_event(self, event: CanonicalTelemetryEvent) -> list[dict[str, Any]]:
         """
         Analyzes an incoming canonical event.
         Returns a list of generated alert dictionaries (if any threshold or fault is breached).
@@ -141,7 +143,7 @@ class AnomalyProcessor:
 
         return alerts
 
-    def create_work_order_for_alert(self, alert: Dict[str, Any], vehicle_info: Dict[str, Any]) -> Dict[str, Any]:
+    def create_work_order_for_alert(self, alert: dict[str, Any], vehicle_info: dict[str, Any]) -> dict[str, Any]:
         """
         Automatically prescribes a maintenance work order, assigning the nearest compatible service depot.
         """

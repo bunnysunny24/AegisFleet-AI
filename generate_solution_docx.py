@@ -2,14 +2,15 @@
 Generates the official Hackathon Solution Document in Microsoft Word (.docx) format
 matching the exact sections of Motorq_Hackathon_Solution_Document_Template.docx.
 """
-import os
 import re
+
 from docx import Document
-from docx.shared import Inches, Pt, RGBColor
-from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.table import WD_TABLE_ALIGNMENT
-from docx.oxml import parse_xml, OxmlElement
-from docx.oxml.ns import nsdecls, qn
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.oxml import parse_xml
+from docx.oxml.ns import nsdecls
+from docx.shared import Inches, Pt, RGBColor
+
 
 def create_solution_docx(md_path: str, output_path: str):
     doc = Document()

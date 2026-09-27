@@ -1,12 +1,19 @@
 """
 Extended unit and integration tests for AnomalyProcessor, FleetCopilotAgent, and FastAPI routes.
 """
-import pytest
 from datetime import datetime, timezone
+
+import pytest
 from fastapi.testclient import TestClient
-from services.core_api.main import app, deduplicator, stream_processor
+
 from services.core_api.database import SessionLocal, init_db
-from services.core_api.models import Vehicle, Alert, PowertrainType, VehicleStatus, AlertSeverity
+from services.core_api.main import app, stream_processor
+from services.core_api.models import (
+    AlertSeverity,
+    PowertrainType,
+    Vehicle,
+    VehicleStatus,
+)
 from services.ingestion.normalizer import CanonicalTelemetryEvent
 from services.ml_engine.fleet_agent import FleetCopilotAgent
 from simulator.vin_generator import generate_valid_vin

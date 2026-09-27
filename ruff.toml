@@ -1,0 +1,20 @@
+# Ruff Linter & SAST Configuration
+target-version = "py311"
+line-length = 120
+
+[lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes (syntax/import errors)
+    "B",   # flake8-bugbear
+    "I",   # isort
+]
+ignore = [
+    "B008",  # Do not perform function call `Depends` in argument defaults (standard in FastAPI)
+    "E501",  # Line length handled by formatter
+    "B904",  # Exception chaining
+]
+
+[lint.isort]
+known-first-party = ["services", "simulator"]

@@ -7,10 +7,21 @@ Features:
 - Mandatory Compliance Audit Trail (Section 8: GDPR, DPDP Act 2023, UNECE R156)
 """
 from datetime import datetime, timezone
-from typing import Dict, Any, List, Optional
+from typing import Any
+
 from sqlalchemy.orm import Session
-from services.core_api.models import Vehicle, Alert, MaintenanceWorkOrder, DTCFaultDefinition, AuditLog, AlertStatus, WorkOrderStatus
+
+from services.core_api.models import (
+    Alert,
+    AlertStatus,
+    AuditLog,
+    DTCFaultDefinition,
+    MaintenanceWorkOrder,
+    Vehicle,
+    WorkOrderStatus,
+)
 from services.ml_engine.predictive_model import global_predictor
+
 
 class FleetCopilotAgent:
     """
@@ -20,7 +31,7 @@ class FleetCopilotAgent:
         self.db = db
         self.user_role = user_role
 
-    def _log_audit_action(self, action: str, resource_type: str, resource_id: str, details: Dict[str, Any]):
+    def _log_audit_action(self, action: str, resource_type: str, resource_id: str, details: dict[str, Any]):
         """Logs action for regulatory compliance and auditability."""
         log = AuditLog(
             actor_id=f"AGENT_COPILOT:{self.user_role}",
@@ -34,7 +45,7 @@ class FleetCopilotAgent:
         self.db.commit()
 
     # Tool 1: Vehicle Diagnostics Inspection
-    def get_vehicle_diagnostics(self, vin: str) -> Dict[str, Any]:
+    def get_vehicle_diagnostics(self, vin: str) -> dict[str, Any]:
         """Tool: Retrieves current state, active alerts, and ML risk evaluation for a vehicle."""
         vehicle = self.db.query(Vehicle).filter(Vehicle.vin == vin).first()
         if not vehicle:
@@ -71,7 +82,7 @@ class FleetCopilotAgent:
         }
 
     # Tool 2: Financial ROI & Breakdown Cost Estimator
-    def calculate_repair_roi(self, vin: str) -> Dict[str, Any]:
+    def calculate_repair_roi(self, vin: str) -> dict[str, Any]:
         """Tool: Calculates dollar impact of preventive action vs unplanned roadside breakdown."""
         diag = self.get_vehicle_diagnostics(vin)
         if "error" in diag:
@@ -101,7 +112,7 @@ class FleetCopilotAgent:
         }
 
     # Tool 3: OEM Knowledge Retrieval (RAG / Diagnostics Catalog)
-    def search_oem_knowledge(self, dtc_code: str) -> Dict[str, Any]:
+    def search_oem_knowledge(self, dtc_code: str) -> dict[str, Any]:
         """Tool: Searches technical bulletin and repair protocol for given DTC code."""
         fault = self.db.query(DTCFaultDefinition).filter(DTCFaultDefinition.code == dtc_code.upper()).first()
         if not fault:
@@ -119,7 +130,7 @@ class FleetCopilotAgent:
         }
 
     # Agent Query Execution
-    def execute_copilot_query(self, user_query: str, target_vin: Optional[str] = None) -> Dict[str, Any]:
+    def execute_copilot_query(self, user_query: str, target_vin: str | None = None) -> dict[str, Any]:
         """
         Processes natural language fleet query with deterministic guardrails and tool execution.
         """

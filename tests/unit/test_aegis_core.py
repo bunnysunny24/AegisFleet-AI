@@ -2,15 +2,12 @@
 Unit and Integration Tests for AegisFleet Platform.
 Targeting >85% coverage across core services, algorithms, and models per Section 12.
 """
-import pytest
-from datetime import datetime, timezone
-from simulator.vin_generator import generate_valid_vin, validate_vin, calculate_check_digit
-from services.ingestion.normalizer import OEMAdapter, CanonicalTelemetryEvent
+from services.analytics.service_router import ServiceCenterRouter
 from services.ingestion.bloom_filter import BloomFilter, IngestionDeduplicator
-from services.analytics.service_router import ServiceCenterRouter, haversine_distance_km
-from services.analytics.stream_processor import AnomalyProcessor
+from services.ingestion.normalizer import CanonicalTelemetryEvent, OEMAdapter
 from services.ml_engine.predictive_model import FailureRiskPredictor
-from services.core_api.models import AlertSeverity
+from simulator.vin_generator import generate_valid_vin, validate_vin
+
 
 # 1. VIN Generation & Validation Tests (Section 9)
 def test_valid_vin_generation_and_validation():

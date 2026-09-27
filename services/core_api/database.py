@@ -3,8 +3,10 @@ Database configuration and session management.
 Supports PostgreSQL (with fallback to SQLite for local tests or lightweight demonstration).
 """
 import os
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
 from services.core_api.models import Base
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./aegis_fleet.db")

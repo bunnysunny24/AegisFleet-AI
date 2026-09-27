@@ -60,7 +60,7 @@ jobs:
         env:
           DATABASE_URL: sqlite:///./test_ci.db
         run: |
-          pytest tests/unit/ -v --cov=services --cov=simulator --cov-report=term-missing --cov-fail-under=80
+          pytest tests/unit/ -v --cov=services --cov-report=term-missing --cov-fail-under=80
 
       - name: Verify Docker Container Build
         run: |

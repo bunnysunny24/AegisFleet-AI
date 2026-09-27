@@ -5,7 +5,7 @@ Probabilistic Streaming Data Structures for Telemetry Ingestion.
 """
 import hashlib
 import math
-from typing import Tuple
+
 
 class BloomFilter:
     """
@@ -21,14 +21,14 @@ class BloomFilter:
         self.size = int(- (expected_elements * math.log(false_positive_rate)) / (math.log(2) ** 2))
         # Optimal number of hash functions k = (m / n) * ln(2)
         self.num_hashes = max(1, int((self.size / expected_elements) * math.log(2)))
-        
+
         self.bit_array = bytearray(math.ceil(self.size / 8))
         self.count = 0
 
     def _get_hashes(self, item: str):
         """Generates k hash indices using double hashing (Kirsch-Mitzenmacher optimization)."""
-        # Compute two 64-bit hashes from MD5
-        digest = hashlib.md5(item.encode("utf-8")).hexdigest()
+        # Compute two 64-bit hashes for probabilistic bitset distribution
+        digest = hashlib.md5(item.encode("utf-8"), usedforsecurity=False).hexdigest()  # nosec B324
         h1 = int(digest[:16], 16)
         h2 = int(digest[16:32], 16)
 
@@ -63,7 +63,7 @@ class IngestionDeduplicator:
         # Tracks last observed sequence_id per VIN to identify out-of-order arrivals
         self.vin_watermarks = {}
 
-    def process_event(self, vin: str, seq: int) -> Tuple[bool, bool]:
+    def process_event(self, vin: str, seq: int) -> tuple[bool, bool]:
         """
         Processes (vin, seq).
         Returns: (is_duplicate: bool, is_out_of_order: bool)

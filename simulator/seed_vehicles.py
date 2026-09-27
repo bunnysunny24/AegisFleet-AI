@@ -1,16 +1,24 @@
 import os
 import sys
+
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-import uuid
 import random
 import time
+import uuid
 from datetime import datetime, timedelta
+
 from sqlalchemy.orm import Session
+
 from services.core_api.database import SessionLocal, init_db
 from services.core_api.models import (
-    Fleet, Vehicle, Driver, VehicleDriverAssignment,
-    DTCFaultDefinition, ServiceCenter, PowertrainType, VehicleStatus, AlertSeverity
+    AlertSeverity,
+    DTCFaultDefinition,
+    Fleet,
+    PowertrainType,
+    ServiceCenter,
+    Vehicle,
+    VehicleStatus,
 )
 from simulator.vin_generator import generate_valid_vin
 

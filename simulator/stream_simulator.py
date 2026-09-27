@@ -1,14 +1,16 @@
 import os
 import sys
+
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 import asyncio
-import json
 import random
 import time
-from datetime import datetime, timezone, timedelta
-from typing import List, Dict, Any
+from datetime import datetime, timedelta, timezone
+from typing import Any
+
 import httpx
+
 from simulator.vin_generator import generate_valid_vin
 
 # Illustrative DTC codes for fault injection
@@ -18,8 +20,8 @@ EVENT_TYPES = ["PERIODIC_HEARTBEAT", "HARSH_BRAKE", "RAPID_ACCEL", "SHARP_TURN",
 class TelemetryGenerator:
     def __init__(self, vin_count: int = 100000):
         self.vin_count = vin_count
-        self.vins: List[str] = [generate_valid_vin() for _ in range(min(vin_count, 10000))] # pre-generate active pool
-        self.vehicle_states: Dict[str, Dict[str, Any]] = {}
+        self.vins: list[str] = [generate_valid_vin() for _ in range(min(vin_count, 10000))] # pre-generate active pool
+        self.vehicle_states: dict[str, dict[str, Any]] = {}
         self._init_states()
 
     def _init_states(self):
@@ -38,7 +40,7 @@ class TelemetryGenerator:
                 "oem_format": random.choice(["standard", "volvo", "stellantis"])
             }
 
-    def generate_event(self, force_duplicate: bool = False, force_out_of_order: bool = False) -> Dict[str, Any]:
+    def generate_event(self, force_duplicate: bool = False, force_out_of_order: bool = False) -> dict[str, Any]:
         """Generates a realistic telemetry event packet with dynamic state transitions."""
         vin = random.choice(self.vins)
         state = self.vehicle_states[vin]
@@ -138,7 +140,7 @@ async def stream_telemetry_batch(
     Simulates high-velocity event bursts, duplicate payloads, and out-of-order events.
     """
     generator = TelemetryGenerator(vin_count=100000)
-    print(f"Initialized Telemetry Generator with pool of 100,000 vehicle states.")
+    print("Initialized Telemetry Generator with pool of 100,000 vehicle states.")
     print(f"Target URL: {target_url} | Target Base Rate: {events_per_second} eps | Duration: {duration_seconds}s")
 
     client = httpx.AsyncClient(timeout=5.0)

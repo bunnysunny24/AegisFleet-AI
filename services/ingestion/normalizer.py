@@ -5,9 +5,12 @@ Implements the Adapter Design Pattern (Section 6.3) to translate diverse OEM pay
 into a unified CanonicalTelemetryEvent.
 """
 from datetime import datetime, timezone
-from typing import Dict, Any, List, Optional
+from typing import Any
+
 from pydantic import BaseModel, Field, field_validator
+
 from simulator.vin_generator import validate_vin
+
 
 class CanonicalTelemetryEvent(BaseModel):
     """Unified canonical vehicle telemetry representation across all 25+ automotive brands."""
@@ -16,11 +19,11 @@ class CanonicalTelemetryEvent(BaseModel):
     latitude: float = Field(..., ge=-90.0, le=90.0)
     longitude: float = Field(..., ge=-180.0, le=180.0)
     speed_kmh: float = Field(..., ge=0.0, le=250.0)
-    soc_pct: Optional[float] = Field(None, ge=0.0, le=100.0, description="Battery State of Charge")
+    soc_pct: float | None = Field(None, ge=0.0, le=100.0, description="Battery State of Charge")
     odometer_km: float = Field(..., ge=0.0)
-    engine_temp_c: Optional[float] = Field(None, ge=-40.0, le=160.0)
-    oil_pressure_psi: Optional[float] = Field(None, ge=0.0, le=120.0)
-    dtc_codes: List[str] = Field(default_factory=list)
+    engine_temp_c: float | None = Field(None, ge=-40.0, le=160.0)
+    oil_pressure_psi: float | None = Field(None, ge=0.0, le=120.0)
+    dtc_codes: list[str] = Field(default_factory=list)
     event_type: str = Field(default="HEARTBEAT")
     sequence_id: int = Field(..., ge=0)
     oem_source: str = Field(default="GENERIC")
@@ -36,7 +39,7 @@ class OEMAdapter:
     """Normalizes arbitrary raw OEM payloads into CanonicalTelemetryEvent."""
 
     @staticmethod
-    def normalize(payload: Dict[str, Any]) -> CanonicalTelemetryEvent:
+    def normalize(payload: dict[str, Any]) -> CanonicalTelemetryEvent:
         # 1. Volvo OEM nested format
         if "header" in payload and "oem" in payload.get("header", {}):
             hdr = payload["header"]
