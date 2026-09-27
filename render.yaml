@@ -1,7 +1,7 @@
 databases:
   - name: aegisfleet-db
     databaseName: aegis_fleet
-    user: postgres
+    user: aegisadmin
     plan: free
 
 services:
