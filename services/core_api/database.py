@@ -11,9 +11,11 @@ from services.core_api.models import Base
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./aegis_fleet.db")
 
-# Fix for Heroku/Render postgres:// prefix if used
+# Fix for Heroku/Render postgresql url to ensure psycopg2 driver is used
 if DATABASE_URL.startswith("postgres://"):
-    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+psycopg2://", 1)
+elif DATABASE_URL.startswith("postgresql://") and not DATABASE_URL.startswith("postgresql+"):
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg2://", 1)
 
 # SQLite-specific connect args
 connect_args = {"check_same_thread": False} if "sqlite" in DATABASE_URL else {}
