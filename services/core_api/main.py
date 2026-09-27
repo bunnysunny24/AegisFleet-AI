@@ -55,8 +55,30 @@ telemetry_stats = {
 
 @app.on_event("startup")
 def on_startup():
-    """Initializes database tables on service startup."""
+    """Initializes database tables on service startup and seeds metadata if empty."""
     init_db()
+    from services.core_api.database import SessionLocal
+    db = SessionLocal()
+    try:
+        if db.query(Vehicle).count() == 0:
+            from simulator.seed_vehicles import seed_vehicles
+            seed_vehicles(count=150)
+    except Exception:
+        pass
+    finally:
+        db.close()
+
+@app.get("/", tags=["System"])
+def root():
+    """Root endpoint welcoming visitors and directing to interactive documentation."""
+    return {
+        "platform": "AegisFleet AI — Connected Vehicle Intelligence API",
+        "status": "ONLINE",
+        "docs_url": "/docs",
+        "health_check": "/health",
+        "overview": "/api/v1/analytics/overview",
+        "version": "1.0.0"
+    }
 
 @app.get("/health", tags=["System"])
 def health_check():
