@@ -1,0 +1,81 @@
+services:
+  # 1. PostgreSQL (3NF Relational Core with Timescale / pgvector readiness)
+  postgres:
+    image: postgres:16-alpine
+    container_name: aegisfleet-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: aegis_fleet
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: aegis_secure_password_2026
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d aegis_fleet"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # 2. Redis (Deduplication Bloom Filters & In-Memory Hot State)
+  redis:
+    image: redis:7-alpine
+    container_name: aegisfleet-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    command: redis-server --save 60 1 --loglevel warning
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # 3. Core API Gateway & Streaming Engine
+  api-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: aegisfleet-api
+    restart: always
+    environment:
+      DATABASE_URL: postgresql://postgres:aegis_secure_password_2026@postgres:5432/aegis_fleet
+      REDIS_URL: redis://redis:6379/0
+      PORT: 8000
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # 4. React Web UI Dashboard
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: aegisfleet-ui
+    restart: always
+    ports:
+      - "3000:80"
+    depends_on:
+      - api-gateway
+
+  # 5. 100,000 Vehicle Telemetry Simulator (Autonomous Background Streamer)
+  simulator:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: aegisfleet-simulator
+    restart: on-failure
+    environment:
+      TARGET_URL: http://api-gateway:8000/api/v1/telemetry/ingest
+      EVENTS_PER_SEC: 1000
+    command: ["python", "simulator/stream_simulator.py", "3600", "1000"]
+    depends_on:
+      - api-gateway
+
+volumes:
+  postgres_data:

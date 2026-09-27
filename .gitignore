@@ -1,0 +1,24 @@
+# Virtual environment
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
+dist/
+
+# SQLite databases & temp data
+*.db
+*.sqlite3
+
+# Test & coverage caches
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
