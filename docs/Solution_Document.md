@@ -6,6 +6,8 @@
 **Team Name**: Team Aegis  
 **Problem Space Chosen**: Predictive Maintenance & EV/ICE Fleet Health Intelligence  
 **Repository URL**: `https://github.com/bunnysunny24/AegisFleet-AI`  
+**Live Production URL (Web UI + API)**: `https://aegisfleet-api.onrender.com/`  
+**Interactive Swagger OpenAPI**: `https://aegisfleet-api.onrender.com/docs`  
 **Demo Video URL (≤ 5 min)**: `https://youtu.be/aegisfleet-demo-2026`  
 **Date of Submission**: 27/09/2026  
 

@@ -1,12 +1,16 @@
 # AegisFleet AI — Connected Vehicle Intelligence & Predictive Health Platform
 
+[![Live Web UI](https://img.shields.io/badge/Live_App-Render-success?style=for-the-badge&logo=render)](https://aegisfleet-api.onrender.com/)
+[![Swagger API](https://img.shields.io/badge/API_Docs-FastAPI-blue?style=for-the-badge&logo=fastapi)](https://aegisfleet-api.onrender.com/docs)
 [![CI/CD Pipeline](https://github.com/bunnysunny24/AegisFleet-AI/actions/workflows/ci.yml/badge.svg)](https://github.com/bunnysunny24/AegisFleet-AI)
 [![Coverage: 85%](https://img.shields.io/badge/Coverage-85%25-brightgreen.svg)]()
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![Docker: Ready](https://img.shields.io/badge/Docker-Ready-2496ED.svg)]()
 
-> **Connected Vehicle Intelligence Hackathon Solution**  
-> *Industry Reference: Motorq | Domain: Connected Vehicles, IoT, Big Data, Enterprise Architecture*
+> **Live Production Dashboard & API**: **[https://aegisfleet-api.onrender.com/](https://aegisfleet-api.onrender.com/)**  
+> **Interactive Swagger Documentation**: **[https://aegisfleet-api.onrender.com/docs](https://aegisfleet-api.onrender.com/docs)**  
+> **Live Health Check**: **[https://aegisfleet-api.onrender.com/health](https://aegisfleet-api.onrender.com/health)**  
+> **Industry Reference**: Motorq | **Domain**: Connected Vehicles, IoT, Big Data, Enterprise Architecture
 
 ---
 
