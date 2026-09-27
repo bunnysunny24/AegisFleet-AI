@@ -5,7 +5,7 @@
 **Industry Reference**: Motorq  
 **Team Name**: Team Aegis  
 **Problem Space Chosen**: Predictive Maintenance & EV/ICE Fleet Health Intelligence  
-**Repository URL**: `https://github.com/aegisfleet/aegisfleet`  
+**Repository URL**: `https://github.com/bunnysunny24/AegisFleet-AI`  
 **Demo Video URL (≤ 5 min)**: `https://youtu.be/aegisfleet-demo-2026`  
 **Date of Submission**: 27/09/2026  
 

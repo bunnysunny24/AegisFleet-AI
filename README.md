@@ -1,6 +1,6 @@
 # AegisFleet AI — Connected Vehicle Intelligence & Predictive Health Platform
 
-[![CI/CD Pipeline](https://github.com/aegisfleet/aegisfleet/actions/workflows/ci.yml/badge.svg)](https://github.com/aegisfleet/aegisfleet)
+[![CI/CD Pipeline](https://github.com/bunnysunny24/AegisFleet-AI/actions/workflows/ci.yml/badge.svg)](https://github.com/bunnysunny24/AegisFleet-AI)
 [![Coverage: 85%](https://img.shields.io/badge/Coverage-85%25-brightgreen.svg)]()
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![Docker: Ready](https://img.shields.io/badge/Docker-Ready-2496ED.svg)]()
