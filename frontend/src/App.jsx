@@ -5,7 +5,8 @@ import {
   RefreshCw, CheckCircle, ArrowUpRight, MessageSquare, Terminal
 } from 'lucide-react';
 
-const API_BASE = "http://localhost:8000";
+const rawApi = import.meta.env.VITE_API_BASE || "http://localhost:8000";
+const API_BASE = rawApi.startsWith("http") ? rawApi : `https://${rawApi}`;
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('overview');
