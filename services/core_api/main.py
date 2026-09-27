@@ -3,11 +3,13 @@ AegisFleet AI - Production REST API Gateway.
 Built with FastAPI, SQLAlchemy, and Pydantic.
 Exposes paginated endpoints, multi-OEM ingestion, real-time analytics, ML inference, and Agentic Copilot.
 """
+import os
 import time
 from typing import Any
 
 from fastapi import Depends, FastAPI, HTTPException, Query, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
@@ -68,17 +70,6 @@ def on_startup():
     finally:
         db.close()
 
-@app.get("/", tags=["System"])
-def root():
-    """Root endpoint welcoming visitors and directing to interactive documentation."""
-    return {
-        "platform": "AegisFleet AI — Connected Vehicle Intelligence API",
-        "status": "ONLINE",
-        "docs_url": "/docs",
-        "health_check": "/health",
-        "overview": "/api/v1/analytics/overview",
-        "version": "1.0.0"
-    }
 
 @app.get("/health", tags=["System"])
 def health_check():
@@ -362,3 +353,10 @@ def benchmark_query_optimization(db: Session = Depends(get_db)):
             "explain_analyze_plan": "Index Scan using idx_alerts_vin_status_severity -> Nested Loop Join"
         }
     }
+
+
+# Mount Pre-Built React Operations Dashboard at /
+frontend_dist = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "frontend", "dist"))
+if os.path.exists(frontend_dist):
+    app.mount("/", StaticFiles(directory=frontend_dist, html=True), name="frontend_ui")
+
