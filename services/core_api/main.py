@@ -5,6 +5,7 @@ Exposes paginated endpoints, multi-OEM ingestion, real-time analytics, ML infere
 """
 import os
 import time
+import uuid
 from typing import Any
 
 from fastapi import Depends, FastAPI, HTTPException, Query, status
@@ -20,6 +21,8 @@ from services.core_api.models import (
     AlertSeverity,
     AlertStatus,
     MaintenanceWorkOrder,
+    ServiceCenter,
+    TelemetryEvent,
     Vehicle,
     WorkOrderStatus,
 )
@@ -33,11 +36,12 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS Middleware for Web UI Dashboard
+# CORS is restricted in deployed environments. A comma-separated allow-list is supported.
+allowed_origins = [origin.strip() for origin in os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000").split(",") if origin.strip()]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=allowed_origins,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -64,7 +68,7 @@ def on_startup():
     try:
         if db.query(Vehicle).count() == 0:
             from simulator.seed_vehicles import seed_vehicles
-            seed_vehicles(count=150)
+            seed_vehicles(count=int(os.getenv("SEED_VEHICLE_COUNT", "100000")))
     except Exception:
         pass
     finally:
@@ -116,6 +120,21 @@ def process_telemetry_batch(batch: list[dict[str, Any]], db: Session = Depends(g
 
         accepted += 1
 
+        # Preserve canonical event history for historical and batch analytics.
+        db.add(TelemetryEvent(
+            id=str(uuid.uuid4()), vin=event.vin, event_timestamp=event.timestamp,
+            sequence_id=event.sequence_id, latitude=event.latitude, longitude=event.longitude,
+            speed_kmh=event.speed_kmh, soc_pct=event.soc_pct, odometer_km=event.odometer_km,
+            engine_temp_c=event.engine_temp_c, oil_pressure_psi=event.oil_pressure_psi,
+            dtc_codes=event.dtc_codes, event_type=event.event_type, oem_source=event.oem_source,
+        ))
+        vehicle = db.query(Vehicle).filter(Vehicle.vin == event.vin).first()
+        if vehicle:
+            vehicle.last_latitude = event.latitude
+            vehicle.last_longitude = event.longitude
+            vehicle.last_telemetry_at = event.timestamp
+            vehicle.odometer_km = max(vehicle.odometer_km, event.odometer_km)
+
         # Real-time anomaly detection
         generated_alerts = stream_processor.process_event(event)
         for alert_data in generated_alerts:
@@ -138,6 +157,13 @@ def process_telemetry_batch(batch: list[dict[str, Any]], db: Session = Depends(g
 
             # Auto-generate work order if critical
             if alert_data["severity"] == AlertSeverity.CRITICAL:
+                service_centers = [{
+                    "id": center.id, "name": center.name, "latitude": center.latitude,
+                    "longitude": center.longitude, "can_service_ev": center.can_service_ev,
+                    "can_service_ice": center.can_service_ice, "max_bays": center.max_bays,
+                    "current_active_orders": center.current_active_orders,
+                } for center in db.query(ServiceCenter).all()]
+                stream_processor.router.service_centers = service_centers
                 wo_data = stream_processor.create_work_order_for_alert(
                     alert_data,
                     {"powertrain": "EV" if "A80" in str(alert_data["dtc_code"]) else "ICE"}

@@ -255,7 +255,7 @@ export default function App() {
               <Truck className="w-4 h-4 text-emerald-400" />
             </div>
             <div className="text-2xl font-bold text-white">
-              {overview ? overview.total_connected_vehicles.toLocaleString() : "100,000"}
+              {overview ? overview.total_connected_vehicles.toLocaleString() : "--"}
             </div>
             <div className="text-xs text-emerald-400 mt-1 flex items-center gap-1">
               <ShieldCheck className="w-3.5 h-3.5" /> 99.9% Uptime Target
@@ -268,10 +268,10 @@ export default function App() {
               <Activity className="w-4 h-4 text-cyan-400" />
             </div>
             <div className="text-2xl font-bold text-white">
-              {overview?.telemetry_stream ? `${overview.telemetry_stream.total_ingested.toLocaleString()}` : "124,850"}
+              {overview?.telemetry_stream ? `${overview.telemetry_stream.total_ingested.toLocaleString()}` : "--"}
             </div>
             <div className="text-xs text-cyan-400 mt-1">
-              {overview?.telemetry_stream?.current_eps || 850} events / sec
+              {overview?.telemetry_stream ? `${overview.telemetry_stream.current_eps} events / sec` : "Waiting for stream"}
             </div>
           </div>
 
@@ -281,10 +281,10 @@ export default function App() {
               <AlertTriangle className="w-4 h-4 text-amber-400" />
             </div>
             <div className="text-2xl font-bold text-amber-300">
-              {overview ? overview.open_alerts : 18}
+              {overview ? overview.open_alerts : "--"}
             </div>
             <div className="text-xs text-amber-400 mt-1">
-              {overview ? overview.critical_alerts : 4} Critical (&lt; 5s SLA)
+              {overview ? overview.critical_alerts : "--"} Critical (&lt; 5s SLA)
             </div>
           </div>
 

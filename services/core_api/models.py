@@ -209,3 +209,29 @@ class AuditLog(Base):
     details = Column(JSON, nullable=True)
     ip_address = Column(String(45), nullable=True)
     timestamp = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+
+
+class TelemetryEvent(Base):
+    """Append-only canonical telemetry history used for batch analytics and retention."""
+    __tablename__ = "telemetry_events"
+
+    id = Column(String(36), primary_key=True)
+    vin = Column(String(17), ForeignKey("vehicles.vin", ondelete="CASCADE"), nullable=False, index=True)
+    event_timestamp = Column(DateTime, nullable=False, index=True)
+    sequence_id = Column(Integer, nullable=False)
+    latitude = Column(Float, nullable=False)
+    longitude = Column(Float, nullable=False)
+    speed_kmh = Column(Float, nullable=False)
+    soc_pct = Column(Float, nullable=True)
+    odometer_km = Column(Float, nullable=False)
+    engine_temp_c = Column(Float, nullable=True)
+    oil_pressure_psi = Column(Float, nullable=True)
+    dtc_codes = Column(JSON, nullable=False, default=list)
+    event_type = Column(String(50), nullable=False)
+    oem_source = Column(String(50), nullable=False)
+    ingested_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+
+    __table_args__ = (
+        Index("idx_telemetry_vin_timestamp", "vin", "event_timestamp"),
+        Index("idx_telemetry_timestamp_vin", "event_timestamp", "vin"),
+    )

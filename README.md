@@ -22,7 +22,7 @@ Across a fleet of **100,000 connected commercial vehicles**, over **100,000 even
 
 **The Solution**: **AegisFleet AI** delivers a cloud-native, production-grade connected vehicle intelligence engine featuring:
 - **100,000 Vehicle Telemetry Simulator**: Ingests multi-OEM payloads (Volvo, Stellantis/Mobilisights, Standard) with 3x bursts, duplicate detection, and out-of-order packet recovery.
-- **Polyglot 3NF Relational + In-Memory Store**: Eliminates write amplification via Bloom-filter pre-filtering, composite indexing (dropping query times from 148ms to 2.1ms), and Redis hot-state caching.
+- **Relational Core and Telemetry History**: Stores normalized fleet, work-order, alert, audit, and canonical telemetry records in PostgreSQL/SQLite, with Bloom-filter pre-filtering and indexed fleet queries.
 - **ML Breakdown Risk Engine**: Gradient Boosted Decision Tree predicting 7-day breakdown probability with **0.87 ROC-AUC** and Remaining Useful Life (RUL) estimation.
 - **Graph Routing (Dijkstra)**: Automatically dispatches critical vehicles to the nearest certified EV/ICE maintenance depot considering bay congestion and battery range.
 - **Agentic AI Copilot (Motorq Fuse Mode)**: Autonomous decision agent equipped with diagnostics tools, dollar ROI impact calculations, prompt-injection defenses, and UNECE R155/DPDP audit trails.
@@ -134,12 +134,12 @@ k6 run tests/load/k6_ingest_test.js
 
 | Metric | Target Specification | Achieved by AegisFleet AI | Measurement Tool / Method |
 | :--- | :--- | :--- | :--- |
-| **Ingest Throughput** | 100,000+ events/sec | **124,800 events/sec** (burst tested) | Async batch ingestion + Bloom filter bypass |
-| **End-to-End Latency** | < 2s dashboard; < 5s alert | **180 ms** alert dispatch | Sliding-window in-memory stream processor |
-| **API Latency (p95)** | < 200 ms | **38 ms** | FastAPI asyncpg connection pool |
-| **API Latency (p99)** | < 500 ms | **82 ms** | Keyset pagination + composite indexing |
-| **Availability** | 99.9% | **Zero Data Loss** | Horizontal Pod Autoscaling (HPA) |
-| **Unit Test Coverage** | 80%+ | **85% verified coverage** | Pytest-cov automated CI |
+| **Ingest Throughput** | 100,000+ events/sec | Load-test target | k6 scenario in `tests/load/` |
+| **End-to-End Latency** | < 2s dashboard; < 5s alert | Measurement target | Telemetry timestamp to API/dashboard observation |
+| **API Latency (p95)** | < 200 ms | Measurement target | k6 summary output |
+| **API Latency (p99)** | < 500 ms | Measurement target | k6 summary output |
+| **Availability** | 99.9% | Architecture target | Health probes and Kubernetes HPA manifest |
+| **Unit Test Coverage** | 80%+ | 83.88% local verification | Pytest-cov |
 
 ---
 
@@ -198,14 +198,14 @@ k6 run tests/load/k6_ingest_test.js
 
 - **0:00 – 0:30 (Problem)**: 100K vehicles generate 100K events/sec; legacy SQL databases collapse under write amplification, and unexpected breakdowns cost $3,500+ each.
 - **0:30 – 1:00 (Solution)**: AegisFleet AI overview — high-throughput multi-OEM ingestion, 3NF polyglot storage, predictive ML, and autonomous depot dispatch.
-- **1:00 – 3:00 (Live Demo)**: Live telemetry stream; triggering a 3x burst with injected DTC `P0301`; seeing real-time alert trigger in <180ms; vehicle inspector showing 7-day breakdown risk; automated work order dispatch.
-- **3:00 – 4:15 (Architecture & Resilience)**: Bloom Filter deduplicating duplicate packets; Dijkstra nearest-depot routing; EXPLAIN ANALYZE index speedup (148ms -> 2.1ms).
-- **4:15 – 5:00 (Results & Impact)**: 85% test coverage, k6 load test results, $42,800 projected net fleet savings, and team conclusion.
+- **1:00 – 3:00 (Live Demo)**: Trigger a burst with injected DTC `P0301`; inspect alerts, vehicle diagnostics, and generated work orders.
+- **3:00 – 4:15 (Architecture & Resilience)**: Show schema normalization, Bloom-filter deduplication, persisted telemetry history, and depot routing.
+- **4:15 – 5:00 (Results & Impact)**: Show the current coverage report, live API health endpoint, and known load-test target.
 
 ---
 
 ## 9. Declarations & Compliance
 
 - **Synthetic Data**: 100% of telemetry, VINs, and vehicle records are generated synthetically; zero real personal or vehicle-owner data was used.
-- **Regulatory Alignment**: Fully aligned with **UNECE R155/R156**, **India DPDP Act 2023**, and **GDPR** via strict location masking and immutable compliance audit logging.
+- **Regulatory Considerations**: Audit logging and privacy controls are documented implementation targets; this project is not a certified compliance product.
 - **Final Submission Tag**: `v1.0-submission`

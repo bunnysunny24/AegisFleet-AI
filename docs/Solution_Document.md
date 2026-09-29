@@ -8,7 +8,7 @@
 **Repository URL**: `https://github.com/bunnysunny24/AegisFleet-AI`  
 **Live Production URL (Web UI + API)**: `https://aegisfleet-api.onrender.com/`  
 **Interactive Swagger OpenAPI**: `https://aegisfleet-api.onrender.com/docs`  
-**Demo Video URL (≤ 5 min)**: `https://youtu.be/aegisfleet-demo-2026`  
+**Demo Video URL (≤ 5 min)**: To be recorded from the deployed demo before submission
 **Date of Submission**: 27/09/2026  
 
 ---
@@ -41,12 +41,12 @@ Commercial fleet managers overseeing mixed ICE (Internal Combustion Engine) and 
 **AegisFleet AI** is an enterprise-grade Connected Vehicle Intelligence and Autonomous Predictive Maintenance platform. It ingests multi-OEM streaming telemetry (supporting Volvo, Stellantis/Mobilisights, and standard formats), normalizes disparate payloads into canonical event schemas, applies in-memory probabilistic deduplication via Bloom filters ($O(1)$ lookup), and predicts component failure risks before catastrophic failure occurs.
 
 ### Key Results Achieved:
-- **Throughput & Scale**: Sustained **124,800 events/sec** burst ingestion without packet loss across a simulated 100,000-vehicle fleet.
-- **Latency & Responsiveness**: Critical anomaly detection and alert dispatch in **180 ms** (< 5s target SLA); API p95 latency of **38 ms** (< 200 ms target).
+- **Throughput & Scale**: The simulator and deployment are configured for a 100,000-vehicle catalog. Formal 100K EPS evidence is a pre-submission load-test task.
+- **Latency & Responsiveness**: Critical-alert and API latency targets are measured through the included load-test plan; no unverified production latency is claimed.
 - **Relational Optimization**: Transformed slow alert join queries from **148.4 ms to 2.1 ms** via composite indexing and 3NF database design.
 - **Predictive Accuracy**: Gradient Boosted Failure Risk model achieving **0.87 ROC-AUC** and 0.81 F1-score for 7-day breakdown prediction.
 - **Graph Allocation**: Dijkstra priority-queue router dispatches vehicles to the nearest certified service depot with available bays and EV charger capability.
-- **Agentic AI & Compliance**: Motorq Fuse-inspired autonomous fleet copilot equipped with financial ROI calculation, prompt-injection defenses, and immutable compliance audit trails aligned with UNECE R155/R156 and India DPDP Act 2023.
+- **Agentic AI & Compliance**: Motorq Fuse-inspired fleet copilot provides ROI calculation, prompt-injection blocking, and audit logging. Regulatory controls are documented implementation targets, not certification claims.
 
 ---
 
@@ -77,7 +77,7 @@ Commercial fleet managers overseeing mixed ICE (Internal Combustion Engine) and 
 | Metric | Baseline Today | Target (AegisFleet) | How Measured / Estimated |
 | :--- | :--- | :--- | :--- |
 | **Unplanned Breakdowns / 1,000 Vehicles** | 14.2 / month | **< 3.5 / month** (-75%) | Back-tested simulation against 100K fleet failure distributions |
-| **End-to-End Critical Alert Latency** | 45 - 180 seconds | **< 2.0 seconds** (Achieved: 180 ms) | Telemetry ingestion timestamp to WebSocket client dispatch |
+| **End-to-End Critical Alert Latency** | 45 - 180 seconds | **< 2.0 seconds** | Telemetry ingestion timestamp to dashboard; verify with load test |
 | **Deduplication Overhead** | 8 - 15% duplicate storage | **0.0% database writes** | In-memory Bloom Filter bitset ($O(1)$ pre-check) |
 | **Preventive Maintenance ROI** | Reactive loss | **+$3,130 net savings / vehicle** | Difference between roadside breakdown cost vs \$320 scheduled depot fix |
 
@@ -189,8 +189,8 @@ AegisFleet AI follows a microservices event-driven architecture with clean separ
 
 | Layer | Choice | Why Selected | What Was Rejected & Why |
 | :--- | :--- | :--- | :--- |
-| **Ingestion / Messaging** | FastAPI + In-Memory Pipeline (Kafka ready) | Asynchronous non-blocking I/O; instant setup; handles >100K eps in batch mode. | RabbitMQ (lacks durable partitioned replay). |
-| **Deduplication / Cache** | In-Memory Bloom Filter + Redis | Space-efficient probabilistic filter (~9.6 bits/item); $O(1)$ duplicate drop. | Relational DB `SELECT` / Unique constraint (causes write locks and deadlocks). |
+| **Ingestion / Messaging** | FastAPI batch ingestion with in-process analysis | Simple, runnable prototype with schema validation and deterministic processing. Durable partitioned messaging is a future enhancement. | Kafka/RabbitMQ require operational setup beyond this prototype. |
+| **Deduplication / Cache** | In-memory Bloom filter | Space-efficient $O(1)$ duplicate pre-check during a process lifetime. | Relational `SELECT` before every event adds read load. |
 | **Relational Core (3NF)** | PostgreSQL 16 (Timescale/pgvector ready) | Strict ACID compliance for fleet assets, drivers, alerts, work orders, and audit logs. | Pure MongoDB / Cassandra (no relational foreign key integrity; high risk of billing anomalies). |
 | **Algorithms** | Dijkstra + Haversine Metric | Priority-queue graph routing minimizes total response distance + bay wait times. | Unweighted Euclidean distance (ignores Earth curvature and depot bay congestion). |
 | **ML Engine** | Scikit-Learn Gradient Boosting | Highly interpretable, handles tabular sensor variance, fast inference (<2ms). | Deep Neural Networks (high CPU/GPU latency overhead for simple tabular telemetry). |
@@ -278,12 +278,12 @@ def find_optimal_service_center(vehicle_lat, vehicle_lon, is_ev, remaining_range
 
 | NFR Metric | Target Specification | Achieved by AegisFleet AI | Measurement Tool & Setup |
 | :--- | :--- | :--- | :--- |
-| **Ingest Throughput** | 100,000+ events/sec | **124,800 events/sec** | k6 distributed load generator; 50-600 virtual users |
-| **End-to-End Latency** | < 2s dashboard; < 5s alert | **180 ms** alert dispatch | Telemetry payload timestamp to WebSocket event receive |
-| **API Latency (p95)** | < 200 ms | **38 ms** | k6 benchmark over 10,000 requests |
-| **API Latency (p99)** | < 500 ms | **82 ms** | Keyset pagination with composite B-tree index |
-| **Resilience & Failover** | Recovers after pod/broker kill | **Zero Data Loss** | Stateless API containers; database write-ahead log (WAL) |
-| **Availability** | 99.9% target | **99.95% measured** | HPA multi-replica cluster with health checks |
+| **Ingest Throughput** | 100,000+ events/sec | Load-test target | k6 scenario in repository |
+| **End-to-End Latency** | < 2s dashboard; < 5s alert | Measurement target | Telemetry timestamp to dashboard observation |
+| **API Latency (p95)** | < 200 ms | Measurement target | k6 summary output |
+| **API Latency (p99)** | < 500 ms | Measurement target | k6 summary output |
+| **Resilience & Failover** | Recovers after pod/broker kill | Architecture target | Health probes and restart policy |
+| **Availability** | 99.9% target | Architecture target | Kubernetes HPA manifest |
 
 ---
 
@@ -306,10 +306,10 @@ def find_optimal_service_center(vehicle_lat, vehicle_lon, is_ev, remaining_range
 
 | Test Type | Tools Used | Test Count | Result / Coverage | In CI Pipeline? |
 | :--- | :--- | :--- | :--- | :--- |
-| **Unit Tests** | `pytest`, `pytest-cov` | 13 test cases | **85% verified coverage** | **Yes** |
-| **Integration Tests** | `TestClient`, SQLite/Postgres | 6 test cases | 100% passed | **Yes** |
-| **Load & Burst Tests** | `k6`, `asyncio` streamer | 100K+ events | 124,800 events/sec sustained | **Yes** |
-| **Security (SAST)** | `ruff`, `bandit` | Codebase scan | 0 critical/high vulnerabilities | **Yes** |
+| **Unit Tests** | `pytest`, `pytest-cov` | 13 test cases | 83.88% local coverage | **Yes** |
+| **Integration Tests** | `TestClient`, SQLite | API ingest and retrieval paths | Included with unit suite | **Yes** |
+| **Load & Burst Tests** | `k6`, `asyncio` streamer | Scenario provided | Run required before final submission | **No measured report committed** |
+| **Security (SAST)** | `ruff`, `bandit` | Ruff verified locally; Bandit runs in CI | CI evidence is linked from repository | **Yes** |
 
 ---
 
@@ -339,7 +339,7 @@ AegisFleet AI provides a centralized observability surface:
 ## 12. Architecture Decisions, Risks & Future Enhancements
 
 ### Summary of ADRs:
-- **ADR-001**: Polyglot Persistence (PostgreSQL 3NF Core + Redis In-Memory Hot State).
+- **ADR-001**: Persistence strategy for the relational core and telemetry lifecycle.
 - **ADR-002**: In-Memory Probabilistic Deduplication with Bloom Filters.
 - **ADR-003**: CAP & PACELC Trade-Offs (AP for Telemetry Stream, CP for Fleet Ownership & Work Orders).
 - **ADR-004**: Agentic AI Guardrails and Regulatory Compliance Audit Trail.
@@ -361,9 +361,9 @@ AegisFleet AI provides a centralized observability surface:
 | :--- | :--- | :--- |
 | **0:00 – 0:30** | Problem Framing | Fleet downtime pain; 100K vehicles generating 100K events/sec; \$3,500 breakdown cost. |
 | **0:30 – 1:00** | Solution Pitch | Introduce AegisFleet AI; high-level architecture diagram; multi-OEM normalization. |
-| **1:00 – 3:00** | Live Working Demo | Launch Web Dashboard; trigger 3x burst stream; watch real-time alert trigger in <180ms; inspect VIN predictive health; view automated work order. |
-| **3:00 – 4:15** | Under the Hood | Bloom Filter deduplication; Dijkstra nearest-depot routing; EXPLAIN ANALYZE index speedup (148ms -> 2.1ms); 85% test coverage. |
-| **4:15 – 5:00** | Impact & Conclusion | Financial ROI (\$42,800 savings); Motorq Fuse Copilot chat; team closing. |
+| **1:00 – 3:00** | Live Working Demo | Launch dashboard; trigger a DTC burst; inspect alerts, vehicle diagnostics, and generated work orders. |
+| **3:00 – 4:15** | Under the Hood | Show normalization, Bloom-filter deduplication, persisted telemetry history, routing, and current coverage. |
+| **4:15 – 5:00** | Impact & Conclusion | Explain the decision-support workflow, current validation, and load-test work remaining. |
 
 ---
 
@@ -373,14 +373,14 @@ AegisFleet AI provides a centralized observability surface:
 - [x] **One-Command Run**: `docker compose up --build` launches full platform.
 - [x] **Seeded Dataset**: 100K vehicle catalog generator (`simulator/seed_vehicles.py`).
 - [x] **CI Pipeline**: Automated GitHub Actions testing, SAST linting, and Docker build.
-- [x] **Clean Hygiene**: `.env.example` provided; zero secrets committed; modular directories.
+- [x] **Clean Hygiene**: `.env.example` provided; production passwords are supplied through environment variables; modular directories.
 - [x] **Final Tag**: Tagged `v1.0-submission`.
 
 ---
 
 ## 15. Conclusion
 
-AegisFleet AI demonstrates that high-velocity connected vehicle intelligence does not require choosing between database performance and relational consistency. By combining in-memory probabilistic data structures (Bloom filters), a strictly normalized 3NF relational core with composite indexing, machine learning failure risk scoring, and autonomous agentic decision support, the platform achieves enterprise production standards for 100,000 connected vehicles.
+AegisFleet AI demonstrates a working connected-vehicle intelligence prototype: normalized telemetry ingestion, alerting, persisted telemetry history, predictive risk scoring, routing, and an operational dashboard. The 100K EPS and production-resilience targets remain items to validate with recorded load and failure-recovery evidence.
 
 ---
 

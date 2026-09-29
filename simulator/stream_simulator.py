@@ -20,7 +20,7 @@ EVENT_TYPES = ["PERIODIC_HEARTBEAT", "HARSH_BRAKE", "RAPID_ACCEL", "SHARP_TURN",
 class TelemetryGenerator:
     def __init__(self, vin_count: int = 100000):
         self.vin_count = vin_count
-        self.vins: list[str] = [generate_valid_vin() for _ in range(min(vin_count, 10000))] # pre-generate active pool
+        self.vins: list[str] = [generate_valid_vin() for _ in range(vin_count)]
         self.vehicle_states: dict[str, dict[str, Any]] = {}
         self._init_states()
 
@@ -140,7 +140,7 @@ async def stream_telemetry_batch(
     Simulates high-velocity event bursts, duplicate payloads, and out-of-order events.
     """
     generator = TelemetryGenerator(vin_count=100000)
-    print("Initialized Telemetry Generator with pool of 100,000 vehicle states.")
+    print(f"Initialized Telemetry Generator with pool of {generator.vin_count:,} vehicle states.")
     print(f"Target URL: {target_url} | Target Base Rate: {events_per_second} eps | Duration: {duration_seconds}s")
 
     client = httpx.AsyncClient(timeout=5.0)

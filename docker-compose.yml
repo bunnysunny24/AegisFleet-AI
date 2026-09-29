@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_DB: aegis_fleet
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: aegis_secure_password_2026
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me-before-production}
     ports:
       - "5432:5432"
     volumes:
@@ -40,9 +40,11 @@ services:
     container_name: aegisfleet-api
     restart: always
     environment:
-      DATABASE_URL: postgresql://postgres:aegis_secure_password_2026@postgres:5432/aegis_fleet
+      DATABASE_URL: postgresql+psycopg2://postgres:${POSTGRES_PASSWORD:-change-me-before-production}@postgres:5432/aegis_fleet
       REDIS_URL: redis://redis:6379/0
       PORT: 8000
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000}
+      SEED_VEHICLE_COUNT: ${SEED_VEHICLE_COUNT:-100000}
     ports:
       - "8000:8000"
     depends_on:
@@ -72,8 +74,8 @@ services:
     restart: on-failure
     environment:
       TARGET_URL: http://api-gateway:8000/api/v1/telemetry/ingest
-      EVENTS_PER_SEC: 1000
-    command: ["python", "simulator/stream_simulator.py", "3600", "1000"]
+      EVENTS_PER_SEC: ${SIMULATOR_EPS:-1000}
+    command: ["sh", "-c", "python simulator/stream_simulator.py 3600 ${SIMULATOR_EPS:-1000}"]
     depends_on:
       - api-gateway
 

@@ -11,6 +11,7 @@ from services.core_api.main import app, stream_processor
 from services.core_api.models import (
     AlertSeverity,
     PowertrainType,
+    TelemetryEvent,
     Vehicle,
     VehicleStatus,
 )
@@ -96,6 +97,10 @@ def test_fastapi_batch_ingest():
     data = res.json()
     assert data["processed_count"] == 1
     assert data["alerts_triggered"] >= 1
+    db = SessionLocal()
+    stored = db.query(TelemetryEvent).filter(TelemetryEvent.vin == vin, TelemetryEvent.sequence_id == 5001).one()
+    assert stored.oem_source == "Standard"
+    db.close()
 
 def test_fleet_copilot_and_guardrails(setup_test_db):
     test_vin = setup_test_db

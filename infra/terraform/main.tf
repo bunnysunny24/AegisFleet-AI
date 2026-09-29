@@ -20,6 +20,11 @@ variable "aws_region" {
   default = "us-east-1"
 }
 
+variable "db_master_password" {
+  type      = string
+  sensitive = true
+}
+
 # 1. High-Performance Aurora PostgreSQL (Multi-AZ with 3NF Schema)
 resource "aws_rds_cluster" "aegis_postgres" {
   cluster_identifier      = "aegisfleet-aurora-cluster"
@@ -27,7 +32,7 @@ resource "aws_rds_cluster" "aegis_postgres" {
   engine_version          = "16.1"
   database_name           = "aegis_fleet"
   master_username         = "aegisadmin"
-  master_password         = "VaultManagedSecretToken2026!"
+  master_password         = var.db_master_password
   backup_retention_period = 14
   preferred_backup_window = "02:00-03:00"
   storage_encrypted       = true
