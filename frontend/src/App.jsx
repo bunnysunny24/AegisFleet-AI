@@ -74,19 +74,24 @@ export default function App() {
   };
 
   const injectTelemetry = async () => {
-    if (!selectedVin) { setNotice('Load the fleet catalog first, then select a vehicle.'); return; }
-    setIsSimulating(true); setNotice('Submitting a 50-event telemetry burst to the selected vehicle.');
+    const targetVin = (selectedVin || vehicles[0]?.vin || '1FTSY42M6P5880172').trim().toUpperCase();
+    if (!targetVin) { setNotice('Load the fleet catalog first, then select a vehicle.'); return; }
+    setSelectedVin(targetVin);
+    setIsSimulating(true); setNotice(`Submitting 50 telemetry events to vehicle ${targetVin.slice(0, 8)}...`);
     const events = Array.from({ length: 50 }, (_, index) => ({
-      vin: selectedVin, ts: new Date().toISOString(), lat: 37.7749 + (Math.random() - 0.5) * 0.1, lon: -122.4194 + (Math.random() - 0.5) * 0.1,
+      vin: targetVin, ts: new Date().toISOString(), lat: 37.7749 + (Math.random() - 0.5) * 0.1, lon: -122.4194 + (Math.random() - 0.5) * 0.1,
       speed_kmh: Math.round(45 + Math.random() * 55), soc_pct: Math.round(15 + Math.random() * 75), odo_km: 18450 + index * 2,
       engine_temp_c: index % 5 === 0 ? 114 : 92, oil_pressure_psi: index % 8 === 0 ? 21 : 44,
       dtc: index % 6 === 0 ? ['P0301'] : [], evt: index % 7 === 0 ? 'HARSH_BRAKE' : 'PERIODIC_HEARTBEAT', seq: Date.now() + index
     }));
     try {
       const response = await fetch(`${API_BASE}/api/v1/telemetry/ingest/batch`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(events) });
-      if (!response.ok) throw new Error('Ingestion failed');
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP ${response.status}: ${errorText || response.statusText}`);
+      }
       const result = await response.json(); setNotice(`${result.processed_count} events accepted; ${result.alerts_triggered} alerts triggered.`); await refresh();
-    } catch { setNotice('The telemetry burst could not be sent. Confirm that the API is available.'); } finally { setIsSimulating(false); }
+    } catch (error) { setNotice(`Telemetry burst failed: ${error.message || 'API connection error'}.`); } finally { setIsSimulating(false); }
   };
 
   const sendCopilot = async (event) => {

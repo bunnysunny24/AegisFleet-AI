@@ -36,12 +36,17 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS is restricted in deployed environments. A comma-separated allow-list is supported.
-allowed_origins = [origin.strip() for origin in os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000").split(",") if origin.strip()]
+# CORS Middleware: supports wildcard '*' (default for cloud web UI + API single-origin and cross-subdomain) or comma-separated domains
+raw_cors = os.getenv("CORS_ALLOWED_ORIGINS", "*")
+if raw_cors.strip() == "*":
+    allowed_origins = ["*"]
+else:
+    allowed_origins = [origin.strip() for origin in raw_cors.split(",") if origin.strip()]
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
-    allow_credentials=False,
+    allow_credentials=True if allowed_origins != ["*"] else False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
