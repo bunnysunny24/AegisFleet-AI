@@ -3,7 +3,6 @@ AegisFleet AI - Production REST API Gateway.
 Built with FastAPI, SQLAlchemy, and Pydantic.
 Exposes paginated endpoints, multi-OEM ingestion, real-time analytics, ML inference, and Agentic Copilot.
 """
-from datetime import datetime, timezone
 import os
 import time
 import uuid
