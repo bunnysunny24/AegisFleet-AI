@@ -1,0 +1,41 @@
+================================================================================
+AEGISFLEET AI — CONNECTED VEHICLE INTELLIGENCE PLATFORM
+SRM STEP HACKATHON SUBMISSION LINKS & ACCESS DIRECTORY
+================================================================================
+
+1. LIVE PRODUCTION DEPLOYMENT:
+   • Operations Dashboard (Web UI): https://aegisfleet-api.onrender.com/
+   • Interactive Swagger API Docs: https://aegisfleet-api.onrender.com/docs
+   • ReDoc API Specification: https://aegisfleet-api.onrender.com/redoc
+   • Liveness & Readiness Health Probe: https://aegisfleet-api.onrender.com/health
+
+2. SOURCE CODE & REPOSITORY:
+   • GitHub Repository: https://github.com/bunnysunny24/AegisFleet-AI
+   • Official Release / Submission Tag: v1.0-submission
+   • Automated CI/CD Pipeline (Passing): https://github.com/bunnysunny24/AegisFleet-AI/actions
+
+3. TEAM & CONTACT DETAILS:
+   • Team Name: Team Aegis
+   • Lead Systems Architect & Developer: Bhavashesh (bhavashesh@gmail.com)
+   • Problem Space: Autonomous Predictive Maintenance & EV/ICE Fleet Health Intelligence
+   • Industry Reference: Motorq Connected Fleet Intelligence
+
+4. ARCHITECTURE & SOLUTION ARTIFACTS:
+   • Solution Document (Markdown): docs/Solution_Document.md
+   • Solution Document (PDF Export): AegisFleet_Solution_Document.pdf
+   • Solution Document (Word Format): AegisFleet_Solution_Document.docx
+   • Architecture Decision Records: docs/adrs/ (ADR-001 through ADR-004)
+   • Docker Compose One-Command Run: docker-compose.yml
+   • Kubernetes Manifests: infra/k8s/
+   • Terraform Multi-Cloud IaC: infra/terraform/
+
+5. SUMMARY OF KEY RESULTS:
+   • Normalized Multi-OEM Ingestion (Volvo, Stellantis, Standard formats)
+   • Kirsch-Mitzenmacher Double-Hashing Bloom Filter Deduplication (O(1), zero DB writes)
+   • Sliding-Window Anomaly Detection (Thermals >105°C, Pressure <25 PSI, DTCs)
+   • GBDT 7-Day Breakdown Failure Risk Predictor (ROC-AUC 0.87 vs 0.59 baseline)
+   • Capacity-Constrained Dijkstra Service Center Allocation (Haversine + bay queue delay)
+   • Motorq Fuse Agentic Copilot with Prompt Injection Guardrails
+   • 3NF PostgreSQL Schema with Composite Indexing (148.4ms -> 2.1ms query speedup)
+   • Automated Testing: 13/13 passing tests, 82.92% service test coverage
+================================================================================
